@@ -13,6 +13,7 @@
   });
 
   const presetGrid = document.getElementById("preset-grid");
+  const fontGrid = document.getElementById("font-grid");
   const colorGrid = document.getElementById("color-grid");
   let state = SslTheme.loadState();
   let draftColors = SslThemes.cloneColors(SslTheme.resolveColors(state));
@@ -60,6 +61,28 @@
         renderPresets();
       });
       presetGrid.appendChild(btn);
+    }
+  }
+
+  function renderFonts() {
+    fontGrid.innerHTML = "";
+    for (const [name, font] of Object.entries(SslThemes.fonts)) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "theme-preset theme-font-preset";
+      if (state.font === name) {
+        btn.classList.add("is-active");
+      }
+      btn.dataset.font = name;
+      btn.innerHTML = `
+        <div class="theme-font-sample" style="font-family:${font.display}">Aa</div>
+        <div class="theme-preset-name" style="font-family:${font.display}">${SslThemes.displayName(name)}</div>
+      `;
+      btn.addEventListener("click", () => {
+        state = SslTheme.setFont(name);
+        renderFonts();
+      });
+      fontGrid.appendChild(btn);
     }
   }
 
@@ -117,5 +140,6 @@
   }
 
   renderPresets();
+  renderFonts();
   renderColorEditor();
 })();

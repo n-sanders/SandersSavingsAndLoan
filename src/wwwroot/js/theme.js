@@ -11,11 +11,24 @@ window.SslTheme = (function () {
     }
   }
 
+  function applyFont(name) {
+    const font = SslThemes.getFont(name);
+    const root = document.documentElement;
+    root.style.setProperty("--font-display", font.display);
+    root.style.setProperty("--font-body", font.body);
+  }
+
+  function resolveFontName(name) {
+    if (name && SslThemes.fonts[name]) return name;
+    return SslThemes.DEFAULT_FONT;
+  }
+
   function defaultState() {
     return {
       mode: "preset",
       name: SslThemes.DEFAULT_THEME,
       colors: SslThemes.getTheme(SslThemes.DEFAULT_THEME),
+      font: SslThemes.DEFAULT_FONT,
     };
   }
 
@@ -24,18 +37,20 @@ window.SslTheme = (function () {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return defaultState();
       const parsed = JSON.parse(raw);
+      const font = resolveFontName(parsed.font);
       if (parsed.mode === "custom" && parsed.colors) {
         const colors = SslThemes.cloneColors({
           ...SslThemes.getTheme(SslThemes.DEFAULT_THEME),
           ...parsed.colors,
         });
-        return { mode: "custom", colors };
+        return { mode: "custom", colors, font };
       }
       if (parsed.mode === "preset" && parsed.name && SslThemes.themes[parsed.name]) {
         return {
           mode: "preset",
           name: parsed.name,
           colors: SslThemes.getTheme(parsed.name),
+          font,
         };
       }
     } catch {
@@ -45,10 +60,11 @@ window.SslTheme = (function () {
   }
 
   function saveState(state) {
+    const font = resolveFontName(state.font);
     const payload =
       state.mode === "custom"
-        ? { mode: "custom", colors: SslThemes.cloneColors(state.colors) }
-        : { mode: "preset", name: state.name };
+        ? { mode: "custom", colors: SslThemes.cloneColors(state.colors), font }
+        : { mode: "preset", name: state.name, font };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   }
 
@@ -62,15 +78,18 @@ window.SslTheme = (function () {
   function applySaved() {
     const state = loadState();
     applyTheme(resolveColors(state));
+    applyFont(state.font);
     return state;
   }
 
   function setPreset(name) {
     if (!SslThemes.themes[name]) return null;
+    const current = loadState();
     const state = {
       mode: "preset",
       name,
       colors: SslThemes.getTheme(name),
+      font: resolveFontName(current.font),
     };
     applyTheme(state.colors);
     saveState(state);
@@ -78,11 +97,26 @@ window.SslTheme = (function () {
   }
 
   function setCustom(colors) {
+    const current = loadState();
     const state = {
       mode: "custom",
       colors: SslThemes.cloneColors(colors),
+      font: resolveFontName(current.font),
     };
     applyTheme(state.colors);
+    saveState(state);
+    return state;
+  }
+
+  function setFont(name) {
+    if (!SslThemes.fonts[name]) return null;
+    const current = loadState();
+    const state = {
+      ...current,
+      colors: resolveColors(current),
+      font: name,
+    };
+    applyFont(name);
     saveState(state);
     return state;
   }
@@ -97,11 +131,13 @@ window.SslTheme = (function () {
   return {
     STORAGE_KEY,
     applyTheme,
+    applyFont,
     loadState,
     saveState,
     applySaved,
     setPreset,
     setCustom,
+    setFont,
     getActiveColors,
     resolveColors,
   };

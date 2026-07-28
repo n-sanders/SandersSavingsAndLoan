@@ -540,6 +540,18 @@ textarea {
   font-weight: 600;
 }
 
+.theme-font-preset {
+  text-align: left;
+}
+
+.theme-font-sample {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.35rem;
+  color: var(--main-color);
+}
+
 .theme-color-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));

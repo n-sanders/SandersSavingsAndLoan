@@ -137,6 +137,91 @@ window.SslThemes = (function () {
       colorfulError: "#f07178",
       colorfulErrorExtra: "#b84a50",
     },
+    cotton_candy: {
+      bg: "#fff0f6",
+      main: "#db2777",
+      caret: "#f472b6",
+      sub: "#9d174d",
+      subAlt: "#fce7f3",
+      text: "#831843",
+      error: "#be123c",
+      errorExtra: "#9f1239",
+      colorfulError: "#c026d3",
+      colorfulErrorExtra: "#a21caf",
+    },
+    cherry_blossom: {
+      bg: "#fff5f7",
+      main: "#e11d48",
+      caret: "#fb7185",
+      sub: "#9f1239",
+      subAlt: "#ffe4e6",
+      text: "#4c0519",
+      error: "#dc2626",
+      errorExtra: "#b91c1c",
+      colorfulError: "#ea580c",
+      colorfulErrorExtra: "#c2410c",
+    },
+    lilac: {
+      bg: "#f5f3ff",
+      main: "#7c3aed",
+      caret: "#a78bfa",
+      sub: "#6d28d9",
+      subAlt: "#ede9fe",
+      text: "#2e1065",
+      error: "#e11d48",
+      errorExtra: "#be123c",
+      colorfulError: "#d946ef",
+      colorfulErrorExtra: "#c026d3",
+    },
+    grape_soda: {
+      bg: "#1a1025",
+      main: "#c4b5fd",
+      caret: "#e9d5ff",
+      sub: "#a78bfa",
+      subAlt: "#2a1a3d",
+      text: "#f3e8ff",
+      error: "#fb7185",
+      errorExtra: "#e11d48",
+      colorfulError: "#f0abfc",
+      colorfulErrorExtra: "#d946ef",
+    },
+    peach_fizz: {
+      bg: "#fff7ed",
+      main: "#ea580c",
+      caret: "#fb923c",
+      sub: "#c2410c",
+      subAlt: "#ffedd5",
+      text: "#7c2d12",
+      error: "#dc2626",
+      errorExtra: "#b91c1c",
+      colorfulError: "#db2777",
+      colorfulErrorExtra: "#be185d",
+    },
+  };
+
+  const DEFAULT_FONT = "classic";
+
+  const fonts = {
+    classic: {
+      display: '"Fraunces", Georgia, serif',
+      body: '"Source Sans 3", "Segoe UI", sans-serif',
+    },
+    roundabout: {
+      display: '"Fredoka", "Segoe UI", sans-serif',
+      body: '"Nunito", "Segoe UI", sans-serif',
+    },
+    comic_book: {
+      display: '"Comic Neue", "Comic Sans MS", cursive',
+      body: '"Comic Neue", "Comic Sans MS", cursive',
+    },
+    bubble_gum: {
+      display: '"Baloo 2", "Segoe UI", sans-serif',
+      body: '"Quicksand", "Segoe UI", sans-serif',
+    },
+    scribbles: {
+      display: '"Caveat", "Segoe UI", cursive',
+      body: '"Nunito", "Segoe UI", sans-serif',
+    },
   };
 
   function cloneColors(colors) {
@@ -152,6 +237,10 @@ window.SslThemes = (function () {
     return theme ? cloneColors(theme) : null;
   }
 
+  function getFont(name) {
+    return fonts[name] || fonts[DEFAULT_FONT];
+  }
+
   function displayName(name) {
     return String(name)
       .split("_")
@@ -164,9 +253,12 @@ window.SslThemes = (function () {
     CSS_VAR_MAP,
     COLOR_LABELS,
     DEFAULT_THEME,
+    DEFAULT_FONT,
     themes,
+    fonts,
     cloneColors,
     getTheme,
+    getFont,
     displayName,
   };
 })();
