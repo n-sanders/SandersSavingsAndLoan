@@ -158,6 +158,8 @@ public static class BankerEndpoints
                     t.Status,
                     t.FinalAmountCents,
                     t.BankerNote,
+                    source = t.Source,
+                    externalId = t.ExternalId,
                     t.CreatedAt,
                     t.ReviewedAt,
                 })
@@ -424,6 +426,103 @@ public static class BankerEndpoints
                 username = user.Username,
             });
         });
+
+        group.MapGet("/api-keys", async (AppDbContext db) =>
+        {
+            var keys = await db.IntegrationApiKeys
+                .OrderByDescending(k => k.CreatedAt)
+                .Select(k => new
+                {
+                    k.Id,
+                    k.Name,
+                    k.Source,
+                    keyPrefix = k.KeyPrefix,
+                    k.CreatedAt,
+                    k.RevokedAt,
+                })
+                .ToListAsync();
+
+            return Results.Ok(keys);
+        });
+
+        group.MapPost("/api-keys", async (CreateApiKeyRequest req, ClaimsPrincipal principal, AppDbContext db) =>
+        {
+            var banker = await AuthEndpoints.GetCurrentUserAsync(principal, db);
+            if (banker is null)
+                return Results.Unauthorized();
+
+            if (string.IsNullOrWhiteSpace(req.Name))
+                return Results.BadRequest(new { error = "Name is required." });
+
+            if (string.IsNullOrWhiteSpace(req.Source))
+                return Results.BadRequest(new { error = "Source is required." });
+
+            var source = req.Source.Trim().ToLowerInvariant();
+            if (!ApiKeyAuth.IsValidSourceSlug(source))
+            {
+                return Results.BadRequest(new
+                {
+                    error = "Source must be a slug: start with a letter, then letters, numbers, hyphens, or underscores (2–64 chars).",
+                });
+            }
+
+            var name = req.Name.Trim();
+            if (name.Length > 128)
+                return Results.BadRequest(new { error = "Name is too long." });
+
+            var sourceTaken = await db.IntegrationApiKeys
+                .AnyAsync(k => k.Source == source && k.RevokedAt == null);
+            if (sourceTaken)
+                return Results.BadRequest(new { error = "An active API key already uses that source." });
+
+            var rawKey = ApiKeyAuth.GenerateRawKey();
+            var entry = new IntegrationApiKey
+            {
+                Name = name,
+                Source = source,
+                KeyPrefix = ApiKeyAuth.KeyPrefix(rawKey),
+                KeyHash = ApiKeyAuth.HashKey(rawKey),
+                CreatedAt = DateTime.UtcNow,
+                CreatedByUserId = banker.Id,
+            };
+
+            db.IntegrationApiKeys.Add(entry);
+            await db.SaveChangesAsync();
+
+            return Results.Created($"/api/banker/api-keys/{entry.Id}", new
+            {
+                entry.Id,
+                entry.Name,
+                entry.Source,
+                keyPrefix = entry.KeyPrefix,
+                entry.CreatedAt,
+                entry.RevokedAt,
+                apiKey = rawKey,
+            });
+        });
+
+        group.MapPost("/api-keys/{id:int}/revoke", async (int id, AppDbContext db) =>
+        {
+            var entry = await db.IntegrationApiKeys.FirstOrDefaultAsync(k => k.Id == id);
+            if (entry is null)
+                return Results.NotFound(new { error = "API key not found." });
+
+            if (entry.RevokedAt is null)
+            {
+                entry.RevokedAt = DateTime.UtcNow;
+                await db.SaveChangesAsync();
+            }
+
+            return Results.Ok(new
+            {
+                entry.Id,
+                entry.Name,
+                entry.Source,
+                keyPrefix = entry.KeyPrefix,
+                entry.CreatedAt,
+                entry.RevokedAt,
+            });
+        });
     }
 }
 
@@ -431,3 +530,4 @@ public record MoneyMovementRequest(int AccountId, int AmountCents, string? Note)
 public record ReviewTaskRequest(int FinalAmountCents, string? Note);
 public record RejectTaskRequest(string? Note);
 public record SetKidPassphraseRequest(string Passphrase);
+public record CreateApiKeyRequest(string Name, string Source);

@@ -26,6 +26,7 @@ async function loadTasks() {
         <span class="${badgeClass(t.status)}">${escapeHtml(t.status)}</span>
         Suggested ${formatMoney(t.suggestedAmountCents)}
         ${t.finalAmountCents != null ? ` · Paid ${formatMoney(t.finalAmountCents)}` : ""}
+        ${t.source ? ` · via ${escapeHtml(t.source)}` : ""}
         · ${formatDate(t.createdAt)}
       </div>
       ${t.bankerNote ? `<div class="muted">Banker note: ${escapeHtml(t.bankerNote)}</div>` : ""}

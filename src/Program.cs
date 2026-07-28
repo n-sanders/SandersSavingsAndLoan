@@ -47,6 +47,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.EnsureCreatedAsync();
     await SchemaBootstrap.EnsureLoanSchemaAsync(db);
+    await SchemaBootstrap.EnsureTaskIntegrationSchemaAsync(db);
     await DbSeeder.SeedAsync(db);
 }
 
@@ -60,5 +61,6 @@ app.MapGet("/api/health", () => Results.Ok(new { status = "ok" }));
 app.MapAuthEndpoints();
 app.MapKidEndpoints();
 app.MapBankerEndpoints();
+app.MapIntegrationEndpoints();
 
 app.Run();

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API keys — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Caveat:wght@600;700&family=Comic+Neue:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <script src="/js/themes.js"></script>
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub">Provision API keys for external apps that submit tasks.</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-secondary" href="/banker.html">Banker desk</a>
+        <a class="btn btn-secondary" href="/theme.html">Theme</a>
+        <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Create API key</h2>
+      <p class="muted">Name the app and choose a source slug (used on pending tasks, e.g. <code>choreapp</code>). The secret is shown only once.</p>
+      <div id="message" class="hidden"></div>
+      <div id="new-key" class="hidden"></div>
+      <form id="create-form">
+        <label for="name">Name</label>
+        <input id="name" type="text" maxlength="128" placeholder="Chore App" required />
+        <label for="source">Source slug</label>
+        <input id="source" type="text" maxlength="64" placeholder="choreapp" pattern="[a-z][a-z0-9_-]{1,63}" required />
+        <div class="actions">
+          <button class="btn" type="submit">Create key</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Existing keys</h2>
+      <div id="keys"></div>
+    </section>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/apikeys.js"></script>
+</body>
+</html>

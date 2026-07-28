@@ -49,7 +49,23 @@ These are seeded only when the database is empty. The banker can overwrite any k
 ## Who can do what
 
 - **Kids** — see their balance, submit completed tasks with a suggested payment, request educational loans (with a repayment preview), and view their own task, loan, and transaction history.
-- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), approve/reject loan requests (approve deposits the principal and creates the repayment schedule), make deposits and withdrawals without a task, set kid passphrases, and view any account’s ledger.
+- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), approve/reject loan requests (approve deposits the principal and creates the repayment schedule), make deposits and withdrawals without a task, set kid passphrases, manage integration API keys, and view any account’s ledger.
+
+### External integrations (tasks)
+
+External apps (for example a chore tracker) can create **pending** task submissions that the banker still approves. Provision a key on the **API keys** page (`/apikeys.html`), then POST from the other app’s server:
+
+```bash
+curl -X POST http://localhost:8080/api/integrations/tasks \
+  -H "Content-Type: application/json" \
+  -H "X-Api-Key: YOUR_KEY_HERE" \
+  -d '{"username":"evie","description":"Unload dishwasher","suggestedAmountCents":150,"externalId":"completion-98765"}'
+```
+
+- Identify the kid with `username` and/or `accountId`.
+- `source` on the task comes from the API key (not the request body).
+- Repeat the same `externalId` for the same key to get an idempotent response (no duplicate pending task).
+- Revoking a key on the API keys page immediately rejects further posts with that secret.
 
 ### Loans
 

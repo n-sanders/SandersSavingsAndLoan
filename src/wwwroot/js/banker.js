@@ -41,7 +41,7 @@ async function loadPendingTasks() {
 
   el.innerHTML = tasks.map((t) => `
     <div class="task-card" data-task-id="${t.id}">
-      <div class="list-title">${escapeHtml(t.displayName)} — ${escapeHtml(t.description)}</div>
+      <div class="list-title">${escapeHtml(t.displayName)} — ${escapeHtml(t.description)}${t.source ? ` <span class="muted">via ${escapeHtml(t.source)}</span>` : ""}</div>
       <div class="task-meta">
         <span>Suggested ${formatMoney(t.suggestedAmountCents)}</span>
         <span>${formatDate(t.createdAt)}</span>

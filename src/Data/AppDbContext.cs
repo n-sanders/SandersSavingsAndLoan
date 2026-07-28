@@ -10,6 +10,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Transaction> Transactions => Set<Transaction>();
     public DbSet<LoanRequest> LoanRequests => Set<LoanRequest>();
     public DbSet<LoanInstallment> LoanInstallments => Set<LoanInstallment>();
+    public DbSet<IntegrationApiKey> IntegrationApiKeys => Set<IntegrationApiKey>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +36,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.Property(t => t.Description).HasMaxLength(500).IsRequired();
             e.Property(t => t.Status).HasMaxLength(32).IsRequired();
+            e.Property(t => t.Source).HasMaxLength(64);
+            e.Property(t => t.ExternalId).HasMaxLength(128);
+            e.HasIndex(t => new { t.Source, t.ExternalId })
+                .IsUnique()
+                .HasFilter("\"ExternalId\" IS NOT NULL");
             e.HasOne(t => t.Account)
                 .WithMany(a => a.TaskSubmissions)
                 .HasForeignKey(t => t.AccountId)
@@ -43,6 +49,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithMany()
                 .HasForeignKey(t => t.ReviewedByUserId)
                 .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<IntegrationApiKey>(e =>
+        {
+            e.Property(k => k.Name).HasMaxLength(128).IsRequired();
+            e.Property(k => k.Source).HasMaxLength(64).IsRequired();
+            e.Property(k => k.KeyPrefix).HasMaxLength(16).IsRequired();
+            e.Property(k => k.KeyHash).HasMaxLength(128).IsRequired();
+            e.HasIndex(k => k.Source)
+                .IsUnique()
+                .HasFilter("\"RevokedAt\" IS NULL");
+            e.HasIndex(k => k.KeyHash).IsUnique();
+            e.HasOne(k => k.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(k => k.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<LoanRequest>(e =>

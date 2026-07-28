@@ -4,7 +4,7 @@ namespace SandersSavingsAndLoan.Data;
 
 /// <summary>
 /// EnsureCreated only creates a brand-new database. For existing ssl.db files,
-/// add loan tables / columns with IF NOT EXISTS / conditional ALTER.
+/// add tables / columns with IF NOT EXISTS / conditional ALTER.
 /// </summary>
 public static class SchemaBootstrap
 {
@@ -68,6 +68,57 @@ public static class SchemaBootstrap
             CREATE UNIQUE INDEX IF NOT EXISTS "IX_Transactions_LoanInstallmentId"
             ON "Transactions" ("LoanInstallmentId")
             WHERE "LoanInstallmentId" IS NOT NULL;
+            """);
+    }
+
+    public static async Task EnsureTaskIntegrationSchemaAsync(AppDbContext db)
+    {
+        var hasSource = await ColumnExistsAsync(db, "TaskSubmissions", "Source");
+        if (!hasSource)
+        {
+            await db.Database.ExecuteSqlRawAsync("""
+                ALTER TABLE "TaskSubmissions" ADD COLUMN "Source" TEXT NULL;
+                """);
+        }
+
+        var hasExternalId = await ColumnExistsAsync(db, "TaskSubmissions", "ExternalId");
+        if (!hasExternalId)
+        {
+            await db.Database.ExecuteSqlRawAsync("""
+                ALTER TABLE "TaskSubmissions" ADD COLUMN "ExternalId" TEXT NULL;
+                """);
+        }
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_TaskSubmissions_Source_ExternalId"
+            ON "TaskSubmissions" ("Source", "ExternalId")
+            WHERE "ExternalId" IS NOT NULL;
+            """);
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TABLE IF NOT EXISTS "IntegrationApiKeys" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_IntegrationApiKeys" PRIMARY KEY AUTOINCREMENT,
+                "Name" TEXT NOT NULL,
+                "Source" TEXT NOT NULL,
+                "KeyPrefix" TEXT NOT NULL,
+                "KeyHash" TEXT NOT NULL,
+                "CreatedAt" TEXT NOT NULL,
+                "CreatedByUserId" INTEGER NOT NULL,
+                "RevokedAt" TEXT NULL,
+                CONSTRAINT "FK_IntegrationApiKeys_Users_CreatedByUserId"
+                    FOREIGN KEY ("CreatedByUserId") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+            );
+            """);
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_IntegrationApiKeys_Source"
+            ON "IntegrationApiKeys" ("Source")
+            WHERE "RevokedAt" IS NULL;
+            """);
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_IntegrationApiKeys_KeyHash"
+            ON "IntegrationApiKeys" ("KeyHash");
             """);
     }
 

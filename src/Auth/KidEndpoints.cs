@@ -71,6 +71,7 @@ public static class KidEndpoints
                     t.Status,
                     t.FinalAmountCents,
                     t.BankerNote,
+                    source = t.Source,
                     t.CreatedAt,
                     t.ReviewedAt,
                 })
