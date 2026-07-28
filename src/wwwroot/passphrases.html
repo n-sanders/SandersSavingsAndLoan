@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Passphrases — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Caveat:wght@600;700&family=Comic+Neue:wght@400;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <script src="/js/themes.js"></script>
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub">Set kid passphrases — overwrites the current one.</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-secondary" href="/banker.html">Banker desk</a>
+        <a class="btn btn-secondary" href="/theme.html">Theme</a>
+        <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Set passphrase</h2>
+      <p class="muted">Choose a kid and enter a new passphrase. You do not need the old one.</p>
+      <div id="message" class="hidden"></div>
+      <form id="passphrase-form">
+        <label for="userId">Kid</label>
+        <select id="userId" required></select>
+        <label for="passphrase">New passphrase</label>
+        <input id="passphrase" type="password" autocomplete="new-password" required />
+        <label for="confirm">Confirm passphrase</label>
+        <input id="confirm" type="password" autocomplete="new-password" required />
+        <div class="actions">
+          <button class="btn" type="submit">Save passphrase</button>
+        </div>
+      </form>
+    </section>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/passphrases.js"></script>
+</body>
+</html>

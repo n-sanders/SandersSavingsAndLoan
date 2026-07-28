@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SandersSavingsAndLoan.Data;
 using SandersSavingsAndLoan.Loans;
@@ -398,9 +399,35 @@ public static class BankerEndpoints
                 loan.ReviewedAt,
             });
         });
+
+        group.MapPost("/kids/{userId:int}/passphrase", async (int userId, SetKidPassphraseRequest req, AppDbContext db) =>
+        {
+            if (string.IsNullOrWhiteSpace(req.Passphrase))
+                return Results.BadRequest(new { error = "Passphrase is required." });
+
+            var user = await db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user is null)
+                return Results.NotFound(new { error = "User not found." });
+
+            if (user.Role != Roles.Kid)
+                return Results.BadRequest(new { error = "Only kid passphrases can be set here." });
+
+            var hasher = new PasswordHasher<User>();
+            user.PassphraseHash = hasher.HashPassword(user, req.Passphrase);
+            await db.SaveChangesAsync();
+
+            return Results.Ok(new
+            {
+                ok = true,
+                userId = user.Id,
+                displayName = user.DisplayName,
+                username = user.Username,
+            });
+        });
     }
 }
 
 public record MoneyMovementRequest(int AccountId, int AmountCents, string? Note);
 public record ReviewTaskRequest(int FinalAmountCents, string? Note);
 public record RejectTaskRequest(string? Note);
+public record SetKidPassphraseRequest(string Passphrase);

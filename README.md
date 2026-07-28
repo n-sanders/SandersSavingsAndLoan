@@ -44,12 +44,12 @@ ConnectionStrings__Default="Data Source=C:\path\to\ssl.db" dotnet run
 | judah    | judah      | Kid |
 | ezra     | ezra       | Kid |
 
-These are seeded only when the database is empty. Change them in a future update, or wipe `data/ssl.db` and restart after editing the seeder.
+These are seeded only when the database is empty. The banker can overwrite any kid’s passphrase on the Passphrases page (`/passphrases.html`) without knowing the old one. To reset everything, wipe `data/ssl.db` and restart after editing the seeder.
 
 ## Who can do what
 
 - **Kids** — see their balance, submit completed tasks with a suggested payment, request educational loans (with a repayment preview), and view their own task, loan, and transaction history.
-- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), approve/reject loan requests (approve deposits the principal and creates the repayment schedule), make deposits and withdrawals without a task, and view any account’s ledger.
+- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), approve/reject loan requests (approve deposits the principal and creates the repayment schedule), make deposits and withdrawals without a task, set kid passphrases, and view any account’s ledger.
 
 ### Loans
 
