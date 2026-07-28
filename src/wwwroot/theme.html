@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Theme — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <script src="/js/themes.js"></script>
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub">Pick a preset or tune your own colors.</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-secondary" id="home-link" href="/">Home</a>
+        <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <div class="theme-layout">
+      <div>
+        <section class="panel">
+          <h2>Presets</h2>
+          <p class="muted">Click a theme to apply it right away.</p>
+          <div class="theme-preset-grid" id="preset-grid"></div>
+        </section>
+
+        <section class="panel">
+          <h2>Custom colors</h2>
+          <p class="muted">Adjust any color — changes apply live and save to this device.</p>
+          <div class="theme-color-grid" id="color-grid"></div>
+        </section>
+      </div>
+
+      <aside class="theme-preview-panel">
+        <section class="panel">
+          <h2>Preview</h2>
+          <div class="theme-preview-sample">
+            <p class="brand" style="font-size:1.4rem">Sanders Savings &amp; Loan</p>
+            <p class="brand-sub">Sample greeting for the preview</p>
+
+            <div class="panel" style="margin-top:1rem">
+              <h2>Your balance</h2>
+              <p class="balance" style="font-size:2rem">$24.50</p>
+            </div>
+
+            <div class="actions">
+              <button class="btn" type="button">Primary</button>
+              <button class="btn btn-secondary" type="button">Secondary</button>
+              <button class="btn btn-danger" type="button">Danger</button>
+            </div>
+
+            <div style="margin-bottom:0.75rem">
+              <span class="badge badge-pending">Pending</span>
+              <span class="badge badge-approved">Approved</span>
+              <span class="badge badge-rejected">Rejected</span>
+              <span class="badge badge-deposit">Deposit</span>
+              <span class="badge badge-withdrawal">Withdrawal</span>
+            </div>
+
+            <div class="error">Something went wrong with that request.</div>
+            <div class="success">Task submitted for approval.</div>
+
+            <label for="preview-input">Sample field</label>
+            <input id="preview-input" type="text" value="Allowance note" readonly />
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/theme-page.js"></script>
+</body>
+</html>
