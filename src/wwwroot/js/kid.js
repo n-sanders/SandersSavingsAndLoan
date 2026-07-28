@@ -4,6 +4,7 @@ async function loadAccount() {
   const account = await api("/api/me/account");
   document.getElementById("greeting").textContent = `Hi ${account.displayName} — here’s your savings.`;
   document.getElementById("balance").textContent = formatMoney(account.balanceCents);
+  document.getElementById("balance").classList.toggle("balance-negative", account.balanceCents < 0);
 }
 
 function badgeClass(status) {

@@ -310,6 +310,123 @@ textarea {
   color: var(--error-color);
 }
 
+.badge-scheduled {
+  background: var(--warn-soft);
+  color: var(--colorful-error-color);
+}
+
+.badge-paid {
+  background: var(--main-soft);
+  color: var(--main-color);
+}
+
+.balance-negative,
+.amount.balance-negative {
+  color: var(--error-color);
+}
+
+.loan-disclosure {
+  background: var(--warn-soft);
+  border: 1px solid color-mix(in srgb, var(--colorful-error-color) 35%, var(--line));
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  margin: 0 0 1rem;
+}
+
+.loan-disclosure p {
+  margin: 0 0 0.4rem;
+}
+
+.loan-disclosure ul {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.loan-disclosure li {
+  margin: 0.25rem 0;
+}
+
+.loan-preview {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-strong);
+}
+
+.loan-preview h3 {
+  margin: 0 0 0.75rem;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.loan-preview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.loan-stat {
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--main-color);
+}
+
+.interest-callout {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--error-color) 14%, var(--bg-color));
+  border: 1px solid color-mix(in srgb, var(--error-color) 40%, var(--line));
+}
+
+.interest-amount {
+  color: var(--error-color);
+  font-size: 1.55rem;
+}
+
+.interest-inline {
+  margin-top: 0.35rem;
+  color: var(--error-color);
+  font-size: 0.95rem;
+}
+
+.interest-inline strong {
+  font-size: 1.05rem;
+}
+
+.schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.schedule-table th,
+.schedule-table td {
+  text-align: left;
+  padding: 0.45rem 0.35rem;
+  border-top: 1px solid var(--line);
+}
+
+.schedule-table th {
+  color: var(--sub-color);
+  font-weight: 600;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-top: none;
+}
+
+.schedule-table.compact {
+  margin-top: 0.65rem;
+  font-size: 0.9rem;
+}
+
+.banker-loan-stats {
+  margin: 0.25rem 0 0.85rem;
+}
+
 .account-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

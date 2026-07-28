@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Loans — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <script src="/js/themes.js"></script>
+  <script src="/js/theme.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub" id="greeting">Loading…</p>
+      </div>
+      <div class="topbar-actions">
+        <a class="btn btn-secondary" href="/kid.html">Home</a>
+        <a class="btn btn-secondary" href="/theme.html">Theme</a>
+        <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <section class="panel">
+      <h2>Your balance</h2>
+      <p class="balance" id="balance">—</p>
+    </section>
+
+    <section class="panel">
+      <h2>Request a loan</h2>
+      <p class="muted">Borrow money for something you need — but interest makes borrowed money cost more.</p>
+      <div class="loan-disclosure">
+        <p><strong>Before you ask:</strong></p>
+        <ul>
+          <li>Interest is <strong>15% per week</strong> on the remaining balance.</li>
+          <li>Payments are withdrawn automatically on each scheduled date (when someone opens the app).</li>
+          <li><strong>No early payoff</strong> — each payment is made only on its schedule.</li>
+          <li>Your balance <strong>can go negative</strong> if a payment is due and you don’t have enough.</li>
+        </ul>
+      </div>
+      <div id="loan-message" class="hidden"></div>
+      <form id="loan-form">
+        <label for="loan-amount">Amount ($)</label>
+        <input id="loan-amount" type="number" min="0.01" step="0.01" required placeholder="5.00" />
+        <label for="loan-purpose">What is it for?</label>
+        <textarea id="loan-purpose" required placeholder="New game, birthday gift for a friend…"></textarea>
+        <label for="loan-term">Pay it back over</label>
+        <select id="loan-term" required>
+          <option value="2">2 weeks</option>
+          <option value="3">3 weeks</option>
+          <option value="4" selected>4 weeks</option>
+          <option value="6">6 weeks</option>
+          <option value="8">8 weeks</option>
+          <option value="10">10 weeks</option>
+        </select>
+
+        <div id="loan-preview" class="loan-preview hidden">
+          <h3>If approved today</h3>
+          <div class="loan-preview-stats">
+            <div>
+              <div class="muted">Weekly payment</div>
+              <div class="loan-stat" id="preview-weekly">—</div>
+            </div>
+            <div>
+              <div class="muted">Total you repay</div>
+              <div class="loan-stat" id="preview-total">—</div>
+            </div>
+            <div class="interest-callout">
+              <div class="muted">Total interest (the cost of borrowing)</div>
+              <div class="loan-stat interest-amount" id="preview-interest">—</div>
+            </div>
+          </div>
+          <table class="schedule-table" id="preview-schedule">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Date</th>
+                <th>Payment</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <button class="btn" type="submit">Submit loan request</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Your loans</h2>
+      <ul class="list" id="loans"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>Upcoming loan withdrawals</h2>
+      <p class="muted">These payments will be taken from your account on the scheduled dates.</p>
+      <ul class="list" id="pending-withdrawals"></ul>
+    </section>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/loan.js"></script>
+</body>
+</html>

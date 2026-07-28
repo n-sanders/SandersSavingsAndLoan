@@ -8,6 +8,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<Account> Accounts => Set<Account>();
     public DbSet<TaskSubmission> TaskSubmissions => Set<TaskSubmission>();
     public DbSet<Transaction> Transactions => Set<Transaction>();
+    public DbSet<LoanRequest> LoanRequests => Set<LoanRequest>();
+    public DbSet<LoanInstallment> LoanInstallments => Set<LoanInstallment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -43,6 +45,30 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<LoanRequest>(e =>
+        {
+            e.Property(l => l.Purpose).HasMaxLength(500).IsRequired();
+            e.Property(l => l.Status).HasMaxLength(32).IsRequired();
+            e.HasOne(l => l.Account)
+                .WithMany(a => a.LoanRequests)
+                .HasForeignKey(l => l.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(l => l.ReviewedByUser)
+                .WithMany()
+                .HasForeignKey(l => l.ReviewedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<LoanInstallment>(e =>
+        {
+            e.Property(i => i.Status).HasMaxLength(32).IsRequired();
+            e.HasIndex(i => new { i.Status, i.DueDate });
+            e.HasOne(i => i.LoanRequest)
+                .WithMany(l => l.Installments)
+                .HasForeignKey(i => i.LoanRequestId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
         modelBuilder.Entity<Transaction>(e =>
         {
             e.Property(t => t.Type).HasMaxLength(32).IsRequired();
@@ -58,6 +84,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             e.HasOne(t => t.TaskSubmission)
                 .WithOne(ts => ts.Transaction)
                 .HasForeignKey<Transaction>(t => t.TaskSubmissionId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(t => t.LoanInstallment)
+                .WithOne(i => i.Transaction)
+                .HasForeignKey<Transaction>(t => t.LoanInstallmentId)
                 .OnDelete(DeleteBehavior.SetNull);
         });
     }

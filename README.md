@@ -48,7 +48,14 @@ These are seeded only when the database is empty. Change them in a future update
 
 ## Who can do what
 
-- **Kids** — see their balance, submit completed tasks with a suggested payment, and view their own task and transaction history.
-- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), make deposits and withdrawals without a task, and view any account’s ledger.
+- **Kids** — see their balance, submit completed tasks with a suggested payment, request educational loans (with a repayment preview), and view their own task, loan, and transaction history.
+- **Banker** — see all balances, approve/reject pending tasks (approve deposits the final amount), approve/reject loan requests (approve deposits the principal and creates the repayment schedule), make deposits and withdrawals without a task, and view any account’s ledger.
 
-Only the banker can move money in v1.
+### Loans
+
+- Interest is fixed at **15% per week** on the remaining balance; terms are 2, 3, 4, 6, 8, or 10 weeks.
+- Kids see a full repayment preview (weekly payment, schedule, total repaid, and **total interest**) before submitting.
+- There is **no early payoff** — payments are only taken on the schedule.
+- On the scheduled date, each installment is withdrawn when someone logs in or loads a page (no background timer). The kid’s balance **can go negative**; there is no fee for that.
+
+Only the banker can move money manually; loan repayments are automatic scheduled withdrawals.

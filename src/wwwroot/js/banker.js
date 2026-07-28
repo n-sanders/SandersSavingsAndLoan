@@ -25,7 +25,7 @@ async function loadAccounts() {
     <div class="account-tile">
       <strong>${escapeHtml(a.displayName)}</strong>
       <div class="muted">@${escapeHtml(a.username)}</div>
-      <div class="amount">${formatMoney(a.balanceCents)}</div>
+      <div class="amount${a.balanceCents < 0 ? " balance-negative" : ""}">${formatMoney(a.balanceCents)}</div>
     </div>
   `).join("");
   fillAccountSelects();
@@ -58,6 +58,45 @@ async function loadPendingTasks() {
       </div>
       <div class="actions">
         <button class="btn btn-sm" type="button" data-action="approve">Approve &amp; deposit</button>
+        <button class="btn btn-secondary btn-sm" type="button" data-action="reject">Reject</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+async function loadPendingLoans() {
+  const loans = await api("/api/banker/loans?status=Pending");
+  const el = document.getElementById("pending-loans");
+  if (!loans.length) {
+    el.innerHTML = `<p class="muted">No pending loan requests.</p>`;
+    return;
+  }
+
+  el.innerHTML = loans.map((loan) => `
+    <div class="task-card" data-loan-id="${loan.id}">
+      <div class="list-title">${escapeHtml(loan.displayName)} — ${escapeHtml(loan.purpose)}</div>
+      <div class="task-meta">
+        <span>Borrow ${formatMoney(loan.amountCents)}</span>
+        <span>${loan.termWeeks} weeks</span>
+        <span>Weekly ${formatMoney(loan.weeklyPaymentCents)}</span>
+        <span>${formatDate(loan.createdAt)}</span>
+      </div>
+      <div class="loan-preview-stats banker-loan-stats">
+        <div>
+          <div class="muted">Total repay</div>
+          <div class="loan-stat">${formatMoney(loan.totalRepayCents)}</div>
+        </div>
+        <div class="interest-callout">
+          <div class="muted">Total interest</div>
+          <div class="loan-stat interest-amount">${formatMoney(loan.totalInterestCents)}</div>
+        </div>
+      </div>
+      <div>
+        <label for="loan-note-${loan.id}">Note (optional)</label>
+        <input id="loan-note-${loan.id}" placeholder="Looks good / wait until…" />
+      </div>
+      <div class="actions">
+        <button class="btn btn-sm" type="button" data-action="approve">Approve &amp; fund</button>
         <button class="btn btn-secondary btn-sm" type="button" data-action="reject">Reject</button>
       </div>
     </div>
@@ -136,6 +175,38 @@ document.getElementById("pending-tasks").addEventListener("click", async (e) => 
   }
 });
 
+document.getElementById("pending-loans").addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  const card = btn.closest(".task-card");
+  const loanId = card.dataset.loanId;
+  const msg = document.getElementById("loan-message");
+  msg.className = "hidden";
+
+  const note = document.getElementById(`loan-note-${loanId}`).value.trim();
+
+  try {
+    if (btn.dataset.action === "approve") {
+      await api(`/api/banker/loans/${loanId}/approve`, {
+        method: "POST",
+        body: { note: note || null },
+      });
+      msg.textContent = "Loan approved — principal deposited and schedule created.";
+    } else {
+      await api(`/api/banker/loans/${loanId}/reject`, {
+        method: "POST",
+        body: { note: note || null },
+      });
+      msg.textContent = "Loan rejected.";
+    }
+    msg.className = "success";
+    await Promise.all([loadAccounts(), loadPendingLoans(), loadHistory()]);
+  } catch (err) {
+    msg.textContent = err.message || "Could not update loan.";
+    msg.className = "error";
+  }
+});
+
 document.getElementById("money-form").addEventListener("submit", async (e) => {
   e.preventDefault();
   const action = e.submitter?.value || "deposit";
@@ -174,6 +245,6 @@ document.getElementById("money-form").addEventListener("submit", async (e) => {
   const me = await requireUser("Banker");
   if (!me) return;
   await loadAccounts();
-  await loadPendingTasks();
+  await Promise.all([loadPendingTasks(), loadPendingLoans()]);
   await loadHistory();
 })();

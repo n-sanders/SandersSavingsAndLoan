@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SandersSavingsAndLoan.Data;
+using SandersSavingsAndLoan.Loans;
 
 namespace SandersSavingsAndLoan;
 
@@ -30,6 +31,12 @@ public static class AuthEndpoints
             var result = hasher.VerifyHashedPassword(user, user.PassphraseHash, req.Passphrase);
             if (result == PasswordVerificationResult.Failed)
                 return Results.Unauthorized();
+
+            await LoanPaymentProcessor.ProcessDueAsync(db);
+
+            // Reload account balance after catch-up withdrawals.
+            if (user.Account is not null)
+                await db.Entry(user.Account).ReloadAsync();
 
             var claims = new List<Claim>
             {
@@ -60,6 +67,11 @@ public static class AuthEndpoints
             var user = await GetCurrentUserAsync(principal, db);
             if (user is null)
                 return Results.Unauthorized();
+
+            await LoanPaymentProcessor.ProcessDueAsync(db);
+            if (user.Account is not null)
+                await db.Entry(user.Account).ReloadAsync();
+
             return Results.Ok(ToMe(user));
         }).RequireAuthorization();
     }
