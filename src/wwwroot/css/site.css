@@ -118,7 +118,7 @@ a {
 }
 
 .login-card {
-  width: min(420px, 100%);
+  width: min(520px, 100%);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   border: 1px solid var(--line);
   border-radius: calc(var(--radius) + 4px);
