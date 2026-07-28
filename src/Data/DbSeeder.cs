@@ -5,6 +5,8 @@ namespace SandersSavingsAndLoan.Data;
 
 public static class DbSeeder
 {
+    private const int SeedDepositCents = 500;
+
     private static readonly (string Username, string DisplayName, string Role)[] SeedUsers =
     [
         ("banker", "Banker", Roles.Banker),
@@ -23,30 +25,52 @@ public static class DbSeeder
         var hasher = new PasswordHasher<User>();
         var now = DateTime.UtcNow;
 
-        foreach (var (username, displayName, role) in SeedUsers)
-        {
-            var user = new User
-            {
-                Username = username,
-                DisplayName = displayName,
-                Role = role,
-                CreatedAt = now,
-            };
-            user.PassphraseHash = hasher.HashPassword(user, username);
+        var banker = CreateUser(hasher, "banker", "Banker", Roles.Banker, now);
+        db.Users.Add(banker);
+        await db.SaveChangesAsync();
 
+        foreach (var (username, displayName, _) in SeedUsers.Where(u => u.Role == Roles.Kid))
+        {
+            var user = CreateUser(hasher, username, displayName, Roles.Kid, now);
             db.Users.Add(user);
 
-            if (role == Roles.Kid)
+            var account = new Account
             {
-                db.Accounts.Add(new Account
-                {
-                    User = user,
-                    BalanceCents = 0,
-                    CreatedAt = now,
-                });
-            }
+                User = user,
+                BalanceCents = SeedDepositCents,
+                CreatedAt = now,
+            };
+            db.Accounts.Add(account);
+
+            db.Transactions.Add(new Transaction
+            {
+                Account = account,
+                Type = TransactionTypes.Deposit,
+                AmountCents = SeedDepositCents,
+                Note = "Initial deposit",
+                CreatedAt = now,
+                CreatedByUserId = banker.Id,
+            });
         }
 
         await db.SaveChangesAsync();
+    }
+
+    private static User CreateUser(
+        PasswordHasher<User> hasher,
+        string username,
+        string displayName,
+        string role,
+        DateTime createdAt)
+    {
+        var user = new User
+        {
+            Username = username,
+            DisplayName = displayName,
+            Role = role,
+            CreatedAt = createdAt,
+        };
+        user.PassphraseHash = hasher.HashPassword(user, username);
+        return user;
     }
 }
