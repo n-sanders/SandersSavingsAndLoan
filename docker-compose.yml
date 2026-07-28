@@ -1,0 +1,9 @@
+services:
+  ssl:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    environment:
+      ConnectionStrings__Default: "Data Source=/app/data/ssl.db"

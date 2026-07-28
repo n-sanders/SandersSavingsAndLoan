@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Banker — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub">Banker desk — manage accounts, tasks, and the ledger.</p>
+      </div>
+      <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+    </header>
+
+    <section class="panel">
+      <h2>Accounts</h2>
+      <div class="account-grid" id="accounts"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Pending tasks</h2>
+      <div id="task-message" class="hidden"></div>
+      <div id="pending-tasks"></div>
+    </section>
+
+    <section class="panel">
+      <h2>Deposit or withdraw</h2>
+      <div id="money-message" class="hidden"></div>
+      <form id="money-form">
+        <div class="row">
+          <div>
+            <label for="accountId">Account</label>
+            <select id="accountId" required></select>
+          </div>
+          <div>
+            <label for="amount">Amount ($)</label>
+            <input id="amount" type="number" min="0.01" step="0.01" required />
+          </div>
+        </div>
+        <label for="note">Note</label>
+        <input id="note" placeholder="Allowance, birthday gift, spent on Legos…" />
+        <div class="actions">
+          <button class="btn" type="submit" name="action" value="deposit">Deposit</button>
+          <button class="btn btn-danger" type="submit" name="action" value="withdraw">Withdraw</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Account history</h2>
+      <label for="historyAccount">Show history for</label>
+      <select id="historyAccount"></select>
+      <ul class="list" id="history" style="margin-top:1rem"></ul>
+    </section>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/banker.js"></script>
+</body>
+</html>

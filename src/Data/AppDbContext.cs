@@ -1,0 +1,64 @@
+using Microsoft.EntityFrameworkCore;
+
+namespace SandersSavingsAndLoan.Data;
+
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+{
+    public DbSet<User> Users => Set<User>();
+    public DbSet<Account> Accounts => Set<Account>();
+    public DbSet<TaskSubmission> TaskSubmissions => Set<TaskSubmission>();
+    public DbSet<Transaction> Transactions => Set<Transaction>();
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<User>(e =>
+        {
+            e.HasIndex(u => u.Username).IsUnique();
+            e.Property(u => u.Username).HasMaxLength(64).IsRequired();
+            e.Property(u => u.DisplayName).HasMaxLength(128).IsRequired();
+            e.Property(u => u.Role).HasMaxLength(32).IsRequired();
+            e.Property(u => u.PassphraseHash).IsRequired();
+        });
+
+        modelBuilder.Entity<Account>(e =>
+        {
+            e.HasIndex(a => a.UserId).IsUnique();
+            e.HasOne(a => a.User)
+                .WithOne(u => u.Account)
+                .HasForeignKey<Account>(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TaskSubmission>(e =>
+        {
+            e.Property(t => t.Description).HasMaxLength(500).IsRequired();
+            e.Property(t => t.Status).HasMaxLength(32).IsRequired();
+            e.HasOne(t => t.Account)
+                .WithMany(a => a.TaskSubmissions)
+                .HasForeignKey(t => t.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.ReviewedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.ReviewedByUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+
+        modelBuilder.Entity<Transaction>(e =>
+        {
+            e.Property(t => t.Type).HasMaxLength(32).IsRequired();
+            e.Property(t => t.Note).HasMaxLength(500).IsRequired();
+            e.HasOne(t => t.Account)
+                .WithMany(a => a.Transactions)
+                .HasForeignKey(t => t.AccountId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne(t => t.CreatedByUser)
+                .WithMany()
+                .HasForeignKey(t => t.CreatedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            e.HasOne(t => t.TaskSubmission)
+                .WithOne(ts => ts.Transaction)
+                .HasForeignKey<Transaction>(t => t.TaskSubmissionId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+    }
+}

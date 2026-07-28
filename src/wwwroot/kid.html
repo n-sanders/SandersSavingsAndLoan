@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Savings — SSL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div>
+        <h1 class="brand">Sanders Savings &amp; Loan</h1>
+        <p class="brand-sub" id="greeting">Loading…</p>
+      </div>
+      <button class="btn btn-secondary" id="logout" type="button">Sign out</button>
+    </header>
+
+    <section class="panel">
+      <h2>Your balance</h2>
+      <p class="balance" id="balance">—</p>
+    </section>
+
+    <section class="panel">
+      <h2>Report a completed task</h2>
+      <p class="muted">Tell the banker what you finished and how much you think it should pay.</p>
+      <div id="task-message" class="hidden"></div>
+      <form id="task-form">
+        <label for="description">What did you do?</label>
+        <textarea id="description" required placeholder="Read for 20 minutes, unloaded dishwasher…"></textarea>
+        <label for="suggested">Suggested pay ($)</label>
+        <input id="suggested" type="number" min="0.01" step="0.01" required placeholder="1.00" />
+        <button class="btn" type="submit">Submit for approval</button>
+      </form>
+    </section>
+
+    <section class="panel">
+      <h2>Your tasks</h2>
+      <ul class="list" id="tasks"></ul>
+    </section>
+
+    <section class="panel">
+      <h2>Transaction history</h2>
+      <ul class="list" id="transactions"></ul>
+    </section>
+  </div>
+  <script src="/js/api.js"></script>
+  <script src="/js/kid.js"></script>
+</body>
+</html>

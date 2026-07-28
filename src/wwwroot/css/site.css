@@ -1,0 +1,327 @@
+:root {
+  --ink: #1a2a24;
+  --ink-soft: #3d5248;
+  --paper: #f3efe6;
+  --paper-deep: #e5ddd0;
+  --green: #1f6b4a;
+  --green-deep: #154d35;
+  --green-soft: #d7ebe0;
+  --amber: #b86a1a;
+  --amber-soft: #f4e3cd;
+  --coral: #9b3b2e;
+  --coral-soft: #f3d8d3;
+  --line: #c9bead;
+  --shadow: 0 12px 32px rgba(26, 42, 36, 0.08);
+  --radius: 14px;
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body: "Source Sans 3", "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  color: var(--ink);
+  background:
+    radial-gradient(ellipse at top left, rgba(31, 107, 74, 0.12), transparent 45%),
+    radial-gradient(ellipse at bottom right, rgba(184, 106, 26, 0.1), transparent 40%),
+    linear-gradient(160deg, #f7f3ea 0%, #ebe4d6 55%, #e2d8c7 100%);
+  line-height: 1.5;
+}
+
+a {
+  color: var(--green);
+}
+
+.shell {
+  width: min(960px, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: 1.5rem 0 3rem;
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--green-deep);
+}
+
+.brand-sub {
+  margin: 0.25rem 0 0;
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+}
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.75rem;
+}
+
+.panel {
+  background: rgba(255, 252, 246, 0.88);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.35rem;
+  margin-bottom: 1.25rem;
+}
+
+.panel h2 {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  margin: 0 0 0.85rem;
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  background: rgba(255, 252, 246, 0.92);
+  border: 1px solid var(--line);
+  border-radius: calc(var(--radius) + 4px);
+  box-shadow: var(--shadow);
+  padding: 2rem 1.75rem;
+}
+
+.login-card .brand {
+  text-align: center;
+}
+
+.login-card .brand-sub {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+input, select, textarea, button {
+  font: inherit;
+}
+
+input, select, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  background: #fffdf8;
+  color: var(--ink);
+  margin-bottom: 0.9rem;
+}
+
+textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn {
+  appearance: none;
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1.1rem;
+  background: var(--green);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--green-deep);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--green-deep);
+  border: 1px solid var(--green);
+}
+
+.btn-secondary:hover {
+  background: var(--green-soft);
+}
+
+.btn-danger {
+  background: var(--coral);
+}
+
+.btn-danger:hover {
+  background: #7e2f24;
+}
+
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.balance {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6vw, 3.2rem);
+  margin: 0.2rem 0 0;
+  color: var(--green-deep);
+}
+
+.muted {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.error {
+  color: var(--coral);
+  background: var(--coral-soft);
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  margin: 0 0 0.9rem;
+}
+
+.success {
+  color: var(--green-deep);
+  background: var(--green-soft);
+  border-radius: 10px;
+  padding: 0.65rem 0.8rem;
+  margin: 0 0 0.9rem;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.list li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.list li:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.list-title {
+  font-weight: 600;
+}
+
+.badge {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 0.15rem 0.55rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.badge-pending {
+  background: var(--amber-soft);
+  color: var(--amber);
+}
+
+.badge-approved {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.badge-rejected {
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.badge-deposit {
+  background: var(--green-soft);
+  color: var(--green-deep);
+}
+
+.badge-withdrawal {
+  background: var(--coral-soft);
+  color: var(--coral);
+}
+
+.account-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.account-tile {
+  background: #fffdf8;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+}
+
+.account-tile strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+}
+
+.account-tile .amount {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--green-deep);
+  margin-top: 0.35rem;
+}
+
+.task-card {
+  border-top: 1px solid var(--line);
+  padding: 1rem 0;
+}
+
+.task-card:first-of-type {
+  border-top: none;
+  padding-top: 0;
+}
+
+.task-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin: 0.35rem 0 0.75rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+}
+
+.hidden {
+  display: none !important;
+}
