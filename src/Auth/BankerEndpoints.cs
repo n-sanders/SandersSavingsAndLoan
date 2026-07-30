@@ -402,6 +402,70 @@ public static class BankerEndpoints
             });
         });
 
+        group.MapPost("/loans/{id:int}/cancel", async (int id, RejectTaskRequest req, ClaimsPrincipal principal, AppDbContext db) =>
+        {
+            var banker = await AuthEndpoints.GetCurrentUserAsync(principal, db);
+            if (banker is null)
+                return Results.Unauthorized();
+
+            await LoanPaymentProcessor.ProcessDueAsync(db);
+
+            var loan = await db.LoanRequests
+                .Include(l => l.Account)
+                .Include(l => l.Installments)
+                .FirstOrDefaultAsync(l => l.Id == id);
+
+            if (loan is null)
+                return Results.NotFound(new { error = "Loan not found." });
+
+            if (loan.Status != LoanStatuses.Approved)
+                return Results.BadRequest(new { error = "Only approved loans can be canceled." });
+
+            if (loan.Installments.Any(i => i.Status == LoanInstallmentStatuses.Paid))
+                return Results.BadRequest(new { error = "Loan has payments and cannot be canceled." });
+
+            if (loan.Account.BalanceCents < loan.AmountCents)
+                return Results.BadRequest(new { error = "Not enough balance left to cancel this loan." });
+
+            var now = DateTime.UtcNow;
+
+            await using var tx = await db.Database.BeginTransactionAsync();
+
+            loan.Account.BalanceCents -= loan.AmountCents;
+
+            var entry = new Transaction
+            {
+                AccountId = loan.AccountId,
+                Type = TransactionTypes.Withdrawal,
+                AmountCents = loan.AmountCents,
+                Note = $"Cancel loan: {loan.Purpose}",
+                CreatedAt = now,
+                CreatedByUserId = banker.Id,
+            };
+            db.Transactions.Add(entry);
+
+            foreach (var installment in loan.Installments.Where(i => i.Status == LoanInstallmentStatuses.Scheduled))
+                installment.Status = LoanInstallmentStatuses.Cancelled;
+
+            loan.Status = LoanStatuses.Cancelled;
+            loan.BankerNote = string.IsNullOrWhiteSpace(req.Note) ? null : req.Note.Trim();
+            loan.ReviewedAt = now;
+            loan.ReviewedByUserId = banker.Id;
+
+            await db.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return Results.Ok(new
+            {
+                loan.Id,
+                loan.Status,
+                loan.BankerNote,
+                loan.ReviewedAt,
+                transactionId = entry.Id,
+                balanceCents = loan.Account.BalanceCents,
+            });
+        });
+
         group.MapPost("/kids/{userId:int}/passphrase", async (int userId, SetKidPassphraseRequest req, AppDbContext db) =>
         {
             if (string.IsNullOrWhiteSpace(req.Passphrase))

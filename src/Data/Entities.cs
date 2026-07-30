@@ -18,12 +18,14 @@ public static class LoanStatuses
     public const string Pending = "Pending";
     public const string Approved = "Approved";
     public const string Rejected = "Rejected";
+    public const string Cancelled = "Cancelled";
 }
 
 public static class LoanInstallmentStatuses
 {
     public const string Scheduled = "Scheduled";
     public const string Paid = "Paid";
+    public const string Cancelled = "Cancelled";
 }
 
 public static class TransactionTypes

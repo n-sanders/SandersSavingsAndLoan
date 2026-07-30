@@ -103,6 +103,44 @@ async function loadPendingLoans() {
   `).join("");
 }
 
+async function loadActiveLoans() {
+  const loans = await api("/api/banker/loans?status=Approved");
+  const el = document.getElementById("active-loans");
+  if (!loans.length) {
+    el.innerHTML = `<p class="muted">No active loans.</p>`;
+    return;
+  }
+
+  el.innerHTML = loans.map((loan) => `
+    <div class="task-card" data-loan-id="${loan.id}">
+      <div class="list-title">${escapeHtml(loan.displayName)} — ${escapeHtml(loan.purpose)}</div>
+      <div class="task-meta">
+        <span>Borrowed ${formatMoney(loan.amountCents)}</span>
+        <span>${loan.termWeeks} weeks</span>
+        <span>Weekly ${formatMoney(loan.weeklyPaymentCents)}</span>
+        <span>${formatDate(loan.reviewedAt || loan.createdAt)}</span>
+      </div>
+      <div class="loan-preview-stats banker-loan-stats">
+        <div>
+          <div class="muted">Total repay</div>
+          <div class="loan-stat">${formatMoney(loan.totalRepayCents)}</div>
+        </div>
+        <div class="interest-callout">
+          <div class="muted">Total interest</div>
+          <div class="loan-stat interest-amount">${formatMoney(loan.totalInterestCents)}</div>
+        </div>
+      </div>
+      <div>
+        <label for="active-loan-note-${loan.id}">Note (optional)</label>
+        <input id="active-loan-note-${loan.id}" placeholder="Changed their mind…" />
+      </div>
+      <div class="actions">
+        <button class="btn btn-danger btn-sm" type="button" data-action="cancel">Cancel loan</button>
+      </div>
+    </div>
+  `).join("");
+}
+
 async function loadHistory() {
   const accountId = document.getElementById("historyAccount").value;
   const el = document.getElementById("history");
@@ -200,9 +238,35 @@ document.getElementById("pending-loans").addEventListener("click", async (e) => 
       msg.textContent = "Loan rejected.";
     }
     msg.className = "success";
-    await Promise.all([loadAccounts(), loadPendingLoans(), loadHistory()]);
+    await Promise.all([loadAccounts(), loadPendingLoans(), loadActiveLoans(), loadHistory()]);
   } catch (err) {
     msg.textContent = err.message || "Could not update loan.";
+    msg.className = "error";
+  }
+});
+
+document.getElementById("active-loans").addEventListener("click", async (e) => {
+  const btn = e.target.closest("[data-action]");
+  if (!btn || btn.dataset.action !== "cancel") return;
+  const card = btn.closest(".task-card");
+  const loanId = card.dataset.loanId;
+  const msg = document.getElementById("active-loan-message");
+  msg.className = "hidden";
+
+  if (!confirm("Cancel this loan? Principal will be withdrawn and the repayment schedule stopped.")) return;
+
+  const note = document.getElementById(`active-loan-note-${loanId}`).value.trim();
+
+  try {
+    await api(`/api/banker/loans/${loanId}/cancel`, {
+      method: "POST",
+      body: { note: note || null },
+    });
+    msg.textContent = "Loan canceled — principal withdrawn and schedule stopped.";
+    msg.className = "success";
+    await Promise.all([loadAccounts(), loadPendingLoans(), loadActiveLoans(), loadHistory()]);
+  } catch (err) {
+    msg.textContent = err.message || "Could not cancel loan.";
     msg.className = "error";
   }
 });
@@ -245,6 +309,6 @@ document.getElementById("money-form").addEventListener("submit", async (e) => {
   const me = await requireUser("Banker");
   if (!me) return;
   await loadAccounts();
-  await Promise.all([loadPendingTasks(), loadPendingLoans()]);
+  await Promise.all([loadPendingTasks(), loadPendingLoans(), loadActiveLoans()]);
   await loadHistory();
 })();

@@ -300,6 +300,11 @@ textarea {
   color: var(--error-color);
 }
 
+.badge-cancelled {
+  background: var(--error-soft);
+  color: var(--error-color);
+}
+
 .badge-deposit {
   background: var(--main-soft);
   color: var(--main-color);
