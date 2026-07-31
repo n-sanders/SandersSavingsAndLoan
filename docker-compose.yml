@@ -7,3 +7,10 @@ services:
       - ./data:/app/data
     environment:
       ConnectionStrings__Default: "Data Source=/app/data/ssl.db"
+    networks:
+      - default
+      - web-core_default
+
+networks:
+  web-core_default:
+    external: true
