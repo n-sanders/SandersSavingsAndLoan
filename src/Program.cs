@@ -48,6 +48,7 @@ using (var scope = app.Services.CreateScope())
     await db.Database.EnsureCreatedAsync();
     await SchemaBootstrap.EnsureLoanSchemaAsync(db);
     await SchemaBootstrap.EnsureTaskIntegrationSchemaAsync(db);
+    await SchemaBootstrap.EnsureInterestSchemaAsync(db);
     await DbSeeder.SeedAsync(db);
 }
 

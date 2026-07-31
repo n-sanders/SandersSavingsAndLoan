@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using SandersSavingsAndLoan.Data;
+using SandersSavingsAndLoan.Interest;
 using SandersSavingsAndLoan.Loans;
 
 namespace SandersSavingsAndLoan;
@@ -20,11 +21,23 @@ public static class KidEndpoints
             if (user?.Account is null)
                 return Results.NotFound(new { error = "Account not found." });
 
+            // Balance may have changed after loan catch-up.
+            await db.Entry(user.Account).ReloadAsync();
+
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var monthStart = new DateOnly(today.Year, today.Month, 1);
+            var txs = await db.Transactions
+                .Where(t => t.AccountId == user.Account.Id)
+                .ToListAsync();
+            var averageDailyBalanceCents = SavingsInterestCalculator.ComputeAverageDailyBalanceCents(
+                txs, monthStart, today);
+
             return Results.Ok(new
             {
                 accountId = user.Account.Id,
                 displayName = user.DisplayName,
                 balanceCents = user.Account.BalanceCents,
+                averageDailyBalanceCents,
             });
         });
 

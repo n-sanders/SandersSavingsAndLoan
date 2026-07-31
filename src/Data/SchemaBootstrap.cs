@@ -122,6 +122,40 @@ public static class SchemaBootstrap
             """);
     }
 
+    public static async Task EnsureInterestSchemaAsync(AppDbContext db)
+    {
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE TABLE IF NOT EXISTS "InterestPaymentRuns" (
+                "Id" INTEGER NOT NULL CONSTRAINT "PK_InterestPaymentRuns" PRIMARY KEY AUTOINCREMENT,
+                "AccrualYear" INTEGER NOT NULL,
+                "AccrualMonth" INTEGER NOT NULL,
+                "PaidAt" TEXT NOT NULL,
+                "PaidByUserId" INTEGER NOT NULL,
+                CONSTRAINT "FK_InterestPaymentRuns_Users_PaidByUserId"
+                    FOREIGN KEY ("PaidByUserId") REFERENCES "Users" ("Id") ON DELETE RESTRICT
+            );
+            """);
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_InterestPaymentRuns_AccrualYear_AccrualMonth"
+            ON "InterestPaymentRuns" ("AccrualYear", "AccrualMonth");
+            """);
+
+        var hasInterestRunId = await ColumnExistsAsync(db, "Transactions", "InterestPaymentRunId");
+        if (!hasInterestRunId)
+        {
+            await db.Database.ExecuteSqlRawAsync("""
+                ALTER TABLE "Transactions" ADD COLUMN "InterestPaymentRunId" INTEGER NULL;
+                """);
+        }
+
+        await db.Database.ExecuteSqlRawAsync("""
+            CREATE UNIQUE INDEX IF NOT EXISTS "IX_Transactions_AccountId_InterestPaymentRunId"
+            ON "Transactions" ("AccountId", "InterestPaymentRunId")
+            WHERE "InterestPaymentRunId" IS NOT NULL;
+            """);
+    }
+
     private static async Task<bool> ColumnExistsAsync(AppDbContext db, string table, string column)
     {
         var connection = db.Database.GetDbConnection();

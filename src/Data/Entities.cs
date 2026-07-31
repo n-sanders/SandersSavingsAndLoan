@@ -130,6 +130,18 @@ public class LoanInstallment
     public Transaction? Transaction { get; set; }
 }
 
+public class InterestPaymentRun
+{
+    public int Id { get; set; }
+    public int AccrualYear { get; set; }
+    public int AccrualMonth { get; set; }
+    public DateTime PaidAt { get; set; }
+    public int PaidByUserId { get; set; }
+
+    public User PaidByUser { get; set; } = null!;
+    public List<Transaction> Transactions { get; set; } = [];
+}
+
 public class Transaction
 {
     public int Id { get; set; }
@@ -139,11 +151,13 @@ public class Transaction
     public string Note { get; set; } = "";
     public int? TaskSubmissionId { get; set; }
     public int? LoanInstallmentId { get; set; }
+    public int? InterestPaymentRunId { get; set; }
     public DateTime CreatedAt { get; set; }
     public int CreatedByUserId { get; set; }
 
     public Account Account { get; set; } = null!;
     public TaskSubmission? TaskSubmission { get; set; }
     public LoanInstallment? LoanInstallment { get; set; }
+    public InterestPaymentRun? InterestPaymentRun { get; set; }
     public User CreatedByUser { get; set; } = null!;
 }

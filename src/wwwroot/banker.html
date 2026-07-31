@@ -73,10 +73,15 @@
     </section>
 
     <section class="panel">
+      <h2>Pay interest</h2>
+      <div id="interest-message" class="hidden"></div>
+      <div id="interest-preview"></div>
+    </section>
+
+    <section class="panel">
       <h2>Account history</h2>
-      <label for="historyAccount">Show history for</label>
-      <select id="historyAccount"></select>
-      <ul class="list" id="history" style="margin-top:1rem"></ul>
+      <p class="muted">Edit ledger dates so average daily balance (and interest) reflect when money actually moved.</p>
+      <div id="history" class="ledger-wrap" style="margin-top:1rem"></div>
     </section>
   </div>
   <script src="/js/api.js"></script>

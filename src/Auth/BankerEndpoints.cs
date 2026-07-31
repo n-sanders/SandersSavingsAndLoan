@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SandersSavingsAndLoan.Data;
+using SandersSavingsAndLoan.Interest;
 using SandersSavingsAndLoan.Loans;
 
 namespace SandersSavingsAndLoan;
@@ -52,11 +53,90 @@ public static class BankerEndpoints
                     t.Note,
                     t.TaskSubmissionId,
                     t.LoanInstallmentId,
+                    t.InterestPaymentRunId,
                     t.CreatedAt,
                 })
                 .ToListAsync();
 
             return Results.Ok(txs);
+        });
+
+        group.MapGet("/transactions", async (AppDbContext db) =>
+        {
+            await LoanPaymentProcessor.ProcessDueAsync(db);
+
+            var txs = await db.Transactions
+                .Include(t => t.Account)
+                .ThenInclude(a => a.User)
+                .OrderByDescending(t => t.CreatedAt)
+                .ThenByDescending(t => t.Id)
+                .Select(t => new
+                {
+                    t.Id,
+                    accountId = t.AccountId,
+                    displayName = t.Account.User.DisplayName,
+                    t.Type,
+                    t.AmountCents,
+                    t.Note,
+                    t.TaskSubmissionId,
+                    t.LoanInstallmentId,
+                    t.InterestPaymentRunId,
+                    t.CreatedAt,
+                })
+                .ToListAsync();
+
+            return Results.Ok(txs);
+        });
+
+        group.MapPatch("/transactions/{id:int}", async (int id, UpdateTransactionDateRequest req, AppDbContext db) =>
+        {
+            if (req.CreatedAt == default)
+                return Results.BadRequest(new { error = "A valid date is required." });
+
+            var entry = await db.Transactions.FirstOrDefaultAsync(t => t.Id == id);
+            if (entry is null)
+                return Results.NotFound(new { error = "Transaction not found." });
+
+            // Banker sends a calendar date; store noon UTC so day boundaries for ADB stay stable.
+            var date = DateOnly.FromDateTime(req.CreatedAt.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(req.CreatedAt, DateTimeKind.Utc)
+                : req.CreatedAt.ToUniversalTime());
+            entry.CreatedAt = date.ToDateTime(new TimeOnly(12, 0), DateTimeKind.Utc);
+            await db.SaveChangesAsync();
+
+            return Results.Ok(new
+            {
+                entry.Id,
+                accountId = entry.AccountId,
+                entry.Type,
+                entry.AmountCents,
+                entry.Note,
+                entry.CreatedAt,
+            });
+        });
+
+        group.MapGet("/interest/preview", async (AppDbContext db) =>
+        {
+            var preview = await SavingsInterestProcessor.PreviewAsync(db);
+            return Results.Ok(ToInterestPayload(preview));
+        });
+
+        group.MapPost("/interest/pay", async (ClaimsPrincipal principal, AppDbContext db) =>
+        {
+            var banker = await AuthEndpoints.GetCurrentUserAsync(principal, db);
+            if (banker is null)
+                return Results.Unauthorized();
+
+            var (paid, error) = await SavingsInterestProcessor.PayAsync(db, banker.Id);
+            if (error is not null)
+                return Results.BadRequest(new { error });
+
+            var next = await SavingsInterestProcessor.PreviewAsync(db);
+            return Results.Ok(new
+            {
+                paid = ToInterestPayload(paid!),
+                next = ToInterestPayload(next),
+            });
         });
 
         group.MapPost("/deposits", async (MoneyMovementRequest req, ClaimsPrincipal principal, AppDbContext db) =>
@@ -588,6 +668,24 @@ public static class BankerEndpoints
             });
         });
     }
+
+    private static object ToInterestPayload(InterestPreviewResult preview) => new
+    {
+        pending = preview.Pending,
+        accrualYear = preview.AccrualYear,
+        accrualMonth = preview.AccrualMonth,
+        accrualMonthLabel = preview.AccrualMonthLabel,
+        payoutDate = preview.PayoutDate?.ToString("yyyy-MM-dd"),
+        monthlyRate = SavingsInterestCalculator.MonthlyRate,
+        totalInterestCents = preview.TotalInterestCents,
+        accounts = preview.Accounts.Select(a => new
+        {
+            accountId = a.AccountId,
+            displayName = a.DisplayName,
+            averageDailyBalanceCents = a.AverageDailyBalanceCents,
+            interestCents = a.InterestCents,
+        }),
+    };
 }
 
 public record MoneyMovementRequest(int AccountId, int AmountCents, string? Note);
@@ -595,3 +693,4 @@ public record ReviewTaskRequest(int FinalAmountCents, string? Note);
 public record RejectTaskRequest(string? Note);
 public record SetKidPassphraseRequest(string Passphrase);
 public record CreateApiKeyRequest(string Name, string Source);
+public record UpdateTransactionDateRequest(DateTime CreatedAt);

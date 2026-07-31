@@ -11,6 +11,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<LoanRequest> LoanRequests => Set<LoanRequest>();
     public DbSet<LoanInstallment> LoanInstallments => Set<LoanInstallment>();
     public DbSet<IntegrationApiKey> IntegrationApiKeys => Set<IntegrationApiKey>();
+    public DbSet<InterestPaymentRun> InterestPaymentRuns => Set<InterestPaymentRun>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -91,6 +92,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
+        modelBuilder.Entity<InterestPaymentRun>(e =>
+        {
+            e.HasIndex(r => new { r.AccrualYear, r.AccrualMonth }).IsUnique();
+            e.HasOne(r => r.PaidByUser)
+                .WithMany()
+                .HasForeignKey(r => r.PaidByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
         modelBuilder.Entity<Transaction>(e =>
         {
             e.Property(t => t.Type).HasMaxLength(32).IsRequired();
@@ -111,6 +121,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
                 .WithOne(i => i.Transaction)
                 .HasForeignKey<Transaction>(t => t.LoanInstallmentId)
                 .OnDelete(DeleteBehavior.SetNull);
+            e.HasOne(t => t.InterestPaymentRun)
+                .WithMany(r => r.Transactions)
+                .HasForeignKey(t => t.InterestPaymentRunId)
+                .OnDelete(DeleteBehavior.SetNull);
+            e.HasIndex(t => new { t.AccountId, t.InterestPaymentRunId })
+                .IsUnique()
+                .HasFilter("\"InterestPaymentRunId\" IS NOT NULL");
         });
     }
 }
