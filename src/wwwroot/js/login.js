@@ -1,5 +1,13 @@
 const { api } = window.SslApi;
 
+const SPLASH_MESSAGES = [
+  "Now with 8% interest!",
+  "Loans at your own risk",
+  "Patience grows $$$",
+];
+document.getElementById("splash").textContent =
+  SPLASH_MESSAGES[Math.floor(Math.random() * SPLASH_MESSAGES.length)];
+
 async function redirectIfLoggedIn() {
   try {
     const me = await api("/api/auth/me");

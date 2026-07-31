@@ -135,6 +135,23 @@ a {
   margin-bottom: 1.5rem;
 }
 
+.splash-text {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--colorful-error-color);
+  text-shadow: 1px 1px 0 color-mix(in srgb, var(--colorful-error-extra-color) 70%, transparent);
+  animation: splash-pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes splash-pulse {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.08);
+  }
+}
+
 label {
   display: block;
   font-size: 0.9rem;
