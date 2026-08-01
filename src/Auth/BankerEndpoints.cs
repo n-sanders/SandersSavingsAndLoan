@@ -285,7 +285,7 @@ public static class BankerEndpoints
                 AmountCents = req.FinalAmountCents,
                 Note = $"Task: {task.Description}",
                 TaskSubmissionId = task.Id,
-                CreatedAt = now,
+                CreatedAt = task.CreatedAt,
                 CreatedByUserId = banker.Id,
             };
             db.Transactions.Add(entry);
